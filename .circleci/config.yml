@@ -1,6 +1,6 @@
 version: 2
 references:
-  storepackages: $storepackages
+  storepackages: &storepackages
     store_artifacts:
       path: packages
   buildrpmpackage: &buildrpmpackage
