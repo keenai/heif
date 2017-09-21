@@ -1,0 +1,62 @@
+version: 2
+references:
+  storepackages: &storepackages
+    store_artifacts:
+      path: packages
+  buildrpmpackage: &buildrpmpackage
+    run:
+      command: |
+        [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
+        mkdir -p packages
+        fpm --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heictojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
+  cmake: &cmake
+    run:
+      command: cmake ..
+      working_directory: build
+  make: &make
+    run:
+      command: make
+      working_directory: build
+jobs:
+  el6:
+    docker:
+      - image: andyshinn/heif:el6
+    steps:
+      - checkout
+      - *cmake
+      - *make
+      - *buildrpmpackage
+      - *storepackages
+  el7:
+    docker:
+      - image: andyshinn/heif:el7
+    steps:
+      - checkout
+      - *cmake
+      - *make
+      - *buildrpmpackage
+      - *storepackages
+  deploy:
+    docker:
+      - image: andyshinn/heif:el7
+    steps:
+      - run:
+          command: |
+            [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
+            package_cloud push keenai/heiftojpeg/el/7 heictojpeg-$VERSION-1.el7.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/6 heictojpeg-$VERSION-1.el6.x86_64.rpm
+workflows:
+  version: 2
+  build:
+    jobs:
+      - el6
+      - el7
+      - deploy:
+          requires:
+            - el6
+            - el7
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
