@@ -1,0 +1,3 @@
+FROM buildpack-deps
+RUN apt-get install cmake libmagickcore-dev libmagick++-dev rubygems ruby-dev doxygen rpm
+RUN gem --no-ri --no-rdoc fpm install package_cloud fpm
