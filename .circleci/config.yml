@@ -1,9 +1,13 @@
 version: 2
 references:
+  storepackages: $storepackages
+    store_artifacts:
+      path: packages
   buildrpmpackage: &buildrpmpackage
     run:
       command: |
         [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
+        mkdir -p packages
         fpm --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heictojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
   cmake: &cmake
     run:
@@ -22,6 +26,7 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
+      - *storepackages
   el7:
     docker:
       - image: andyshinn/heif:el7
@@ -30,6 +35,7 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
+      - *storepackages
   deploy:
     docker:
       - image: andyshinn/heif:el7
@@ -39,8 +45,6 @@ jobs:
             [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
             package_cloud push keenai/heiftojpeg/el/7 heictojpeg-$VERSION-1.el7.x86_64.rpm
             package_cloud push keenai/heiftojpeg/el/6 heictojpeg-$VERSION-1.el6.x86_64.rpm
-      - store_artifacts:
-          path: packages
 workflows:
   version: 2
   build:
