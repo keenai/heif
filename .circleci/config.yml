@@ -17,6 +17,11 @@ references:
     run:
       command: make
       working_directory: build
+  packagefiles: &packagefiles
+    persist_to_workspace:
+      root: packages
+      paths:
+        - *.rpm
 jobs:
   el6:
     docker:
@@ -40,11 +45,13 @@ jobs:
     docker:
       - image: andyshinn/heif:el7
     steps:
-      - run:
+      - attach_workspace:
+          at: /tmp/packages
+      - deploy:
           command: |
             [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
-            package_cloud push keenai/heiftojpeg/el/7 heictojpeg-$VERSION-1.el7.x86_64.rpm
-            package_cloud push keenai/heiftojpeg/el/6 heictojpeg-$VERSION-1.el6.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/7 /tmp/packages/heictojpeg-$VERSION-1.el7.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/6 /tmp/packages/heictojpeg-$VERSION-1.el6.x86_64.rpm
 workflows:
   version: 2
   build:
