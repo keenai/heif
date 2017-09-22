@@ -1,6 +1,10 @@
 version: 2
 references:
-  storepackages: &storepackages
+  tagfilter: &tagfilter
+    filters:
+      tags:
+        only: /.*/
+  storeartifacts: &storeartifacts
     store_artifacts:
       path: packages
   buildrpmpackage: &buildrpmpackage
@@ -17,6 +21,11 @@ references:
     run:
       command: make
       working_directory: build
+  persistworkspace: &persistworkspace
+    persist_to_workspace:
+      root: packages
+      paths:
+        - ./*.rpm
 jobs:
   el6:
     docker:
@@ -26,7 +35,8 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
-      - *storepackages
+      - *storeartifacts
+      - *persistworkspace
   el7:
     docker:
       - image: andyshinn/heif:el7
@@ -35,28 +45,36 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
-      - *storepackages
+      - *storeartifacts
+      - *persistworkspace
   deploy:
     docker:
       - image: andyshinn/heif:el7
     steps:
-      - run:
+      - attach_workspace:
+          at: /tmp/packages
+      - deploy:
           command: |
             [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
-            package_cloud push keenai/heiftojpeg/el/7 heictojpeg-$VERSION-1.el7.x86_64.rpm
-            package_cloud push keenai/heiftojpeg/el/6 heictojpeg-$VERSION-1.el6.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/7 /tmp/packages/heictojpeg-$VERSION-1.el7.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/6 /tmp/packages/heictojpeg-$VERSION-1.el6.x86_64.rpm
 workflows:
   version: 2
   build:
     jobs:
-      - el6
-      - el7
+      - el6:
+          <<: *tagfilter
+      - el7:
+          <<: *tagfilter
       - deploy:
           requires:
             - el6
             - el7
           filters:
-            tags:
-              only: /.*/
             branches:
               ignore: /.*/
+            tags:
+              only: /.*/
+deployment:
+  trigger_tag:
+    tag: /.*/
