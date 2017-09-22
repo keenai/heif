@@ -67,13 +67,14 @@ workflows:
       - el7:
           <<: *tagfilter
       - deploy:
-          <<: *tagfilter
           requires:
             - el6
             - el7
           filters:
             branches:
               ignore: /.*/
+            tags:
+              only: /.*/
 deployment:
   trigger_tag:
     tag: /.*/
