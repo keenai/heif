@@ -19,9 +19,9 @@ references:
       working_directory: build
   packagefiles: &packagefiles
     persist_to_workspace:
-      root: packages
+      root: $CIRCLE_WORKING_DIRECTORY
       paths:
-        - *.rpm
+        - packages/*
 jobs:
   el6:
     docker:
