@@ -12,7 +12,7 @@ references:
       command: |
         [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="$CIRCLE_BRANCH"
         mkdir -p packages
-        fpm -d exiftool -d ffmpeg --iteration $CIRCLE_BUILD_NUM --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heiftojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
+        fpm -d /usr/bin/exiftool -d /usr/bin/ffmpeg --iteration $CIRCLE_BUILD_NUM --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heiftojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
   cmake: &cmake
     run:
       command: cmake ..
