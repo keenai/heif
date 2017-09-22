@@ -23,9 +23,9 @@ references:
       working_directory: build
   persistworkspace: &persistworkspace
     persist_to_workspace:
-      root: $CIRCLE_WORKING_DIRECTORY
+      root: packages
       paths:
-        - packages/*
+        - ./*.rpm
 jobs:
   el6:
     docker:
