@@ -60,3 +60,6 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
+deployment:
+  trigger_tag:
+    tag: /.*/
