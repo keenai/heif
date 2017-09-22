@@ -10,9 +10,9 @@ references:
   buildrpmpackage: &buildrpmpackage
     run:
       command: |
-        [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
+        [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="$CIRCLE_BRANCH"
         mkdir -p packages
-        fpm --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heictojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
+        fpm -d exiftool -d ffmpeg --iteration $CIRCLE_BUILD_NUM --rpm-autoreqprov --rpm-dist $CIRCLE_JOB -t rpm -n heiftojpeg -v $VERSION -p packages -s dir Bins/heiftojpeg=/usr/bin/
   cmake: &cmake
     run:
       command: cmake ..
@@ -55,9 +55,9 @@ jobs:
           at: /tmp/packages
       - deploy:
           command: |
-            [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="${CIRCLE_BRANCH}_${CIRCLE_BUILD_NUM}"
-            package_cloud push keenai/heiftojpeg/el/7 /tmp/packages/heictojpeg-$VERSION-1.el7.x86_64.rpm
-            package_cloud push keenai/heiftojpeg/el/6 /tmp/packages/heictojpeg-$VERSION-1.el6.x86_64.rpm
+            [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="$CIRCLE_BRANCH"
+            package_cloud push keenai/heiftojpeg/el/7 /tmp/packages/heiftojpeg-${VERSION}-*.el7.x86_64.rpm
+            package_cloud push keenai/heiftojpeg/el/6 /tmp/packages/heiftojpeg-${VERSION}-*.el6.x86_64.rpm
 workflows:
   version: 2
   build:
