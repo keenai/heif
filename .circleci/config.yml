@@ -4,7 +4,7 @@ references:
     filters:
       tags:
         only: /.*/
-  storepackages: &storepackages
+  storeartifacts: &storeartifacts
     store_artifacts:
       path: packages
   buildrpmpackage: &buildrpmpackage
@@ -21,7 +21,7 @@ references:
     run:
       command: make
       working_directory: build
-  packagefiles: &packagefiles
+  persistworkspace: &persistworkspace
     persist_to_workspace:
       root: $CIRCLE_WORKING_DIRECTORY
       paths:
@@ -35,7 +35,8 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
-      - *storepackages
+      - *storeartifacts
+      - *persistworkspace
   el7:
     docker:
       - image: andyshinn/heif:el7
@@ -44,7 +45,8 @@ jobs:
       - *cmake
       - *make
       - *buildrpmpackage
-      - *storepackages
+      - *storeartifacts
+      - *persistworkspace
   deploy:
     docker:
       - image: andyshinn/heif:el7
