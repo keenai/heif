@@ -1,5 +1,9 @@
 version: 2
 references:
+  tagfilter: &tagfilter
+    filters:
+      tags:
+        only: /.*/
   storepackages: &storepackages
     store_artifacts:
       path: packages
@@ -56,15 +60,16 @@ workflows:
   version: 2
   build:
     jobs:
-      - el6
-      - el7
+      - el6:
+          <<: *tagfilter
+      - el7:
+          <<: *tagfilter
       - deploy:
+          <<: *tagfilter
           requires:
             - el6
             - el7
           filters:
-            tags:
-              only: /.*/
             branches:
               ignore: /.*/
 deployment:
