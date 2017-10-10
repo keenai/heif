@@ -54,7 +54,7 @@ jobs:
       - attach_workspace:
           at: /tmp/packages
       - deploy:
-          command: aws s3 sync /tmp/packages s3://efdevops/rpms/heiftojpeg
+          command: aws s3 sync --acl public-read /tmp/packages s3://efdevops/rpms/heiftojpeg
 workflows:
   version: 2
   build:
