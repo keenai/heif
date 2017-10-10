@@ -49,15 +49,12 @@ jobs:
       - *persistworkspace
   deploy:
     docker:
-      - image: andyshinn/heif:el7
+      - image: infrastructureascode/aws-cli:1.11.167
     steps:
       - attach_workspace:
           at: /tmp/packages
       - deploy:
-          command: |
-            [[ "$CIRCLE_TAG" ]] && VERSION="$CIRCLE_TAG" || VERSION="$CIRCLE_BRANCH"
-            package_cloud push keenai/heiftojpeg/el/7 /tmp/packages/heiftojpeg-${VERSION}-*.el7.x86_64.rpm
-            package_cloud push keenai/heiftojpeg/el/6 /tmp/packages/heiftojpeg-${VERSION}-*.el6.x86_64.rpm
+          command: aws s3 sync /tmp/packages s3://efdevops/rpms/heiftojpeg
 workflows:
   version: 2
   build:
