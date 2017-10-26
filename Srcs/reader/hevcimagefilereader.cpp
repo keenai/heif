@@ -473,11 +473,13 @@ void HevcImageFileReader::getItemData(const uint32_t contextId, const uint32_t i
         case ContextType::META:
         {
             readItem(mMetaBoxMap.at(contextId), itemId, rawItemData);
-            const std::string rawType = getRawItemType(mMetaBoxMap.at(contextId), itemId);
-            if ((not isProtected(contextId, itemId)) &&
-                ((rawType == "hvc1") || (rawType == "avc1") || (rawType == "lhv1")))
-            {
-                processData = true;
+            if (itemId < mMetaBoxMap.at(contextId).getItemInfoBox().getEntryCount()) {
+                const std::string rawType = getRawItemType(mMetaBoxMap.at(contextId), itemId);
+                if ((not isProtected(contextId, itemId)) &&
+                    ((rawType == "hvc1") || (rawType == "avc1") || (rawType == "lhv1")))
+                {
+                    processData = true;
+                }
             }
             break;
         }
